@@ -1,126 +1,74 @@
 #include <stdio.h>
-#include <stdlib.h>
-#include <stdbool.h>
 
-// Function to print the solution
-void printSolution(int **board, int N)
+void display(int x[], int n)
 {
-    for (int i = 0; i < N; i++)
+    char c[20][20];
+    int i, j;
+    for (i = 1; i <= n; i++)
+        for (j = 1; j <= n; j++)
+            c[i][j] = 'X';
+    for (i = 1; i <= n; i++)
+        c[i][x[i]] = 'Q';
+    for (i = 1; i <= n; i++)
     {
-        for (int j = 0; j < N; j++)
-        {
-            printf("%s ", board[i][j] ? "Q" : "#");
-        }
+        for (j = 1; j <= n; j++)
+            printf("\t%c", c[i][j]);
         printf("\n");
     }
+    printf("\n");
 }
 
-// Function to check if a queen can be placed on board[row][col]
-bool isSafe(int **board, int N, int row, int col)
+int place(int x[], int k)
 {
-    int i, j;
-
-    // Check this row on left side
-    for (i = 0; i < col; i++)
+    int i;
+    for (i = 1; i < k; i++)
     {
-        if (board[row][i])
-        {
-            return false;
-        }
+        if (x[i] == x[k] || (i - x[i]) == (k - x[k]) || (i + x[i]) == (k + x[k]))
+            return 0;
     }
-
-    // Check upper diagonal on left side
-    for (i = row, j = col; i >= 0 && j >= 0; i--, j--)
-    {
-        if (board[i][j])
-        {
-            return false;
-        }
-    }
-
-    // Check lower diagonal on left side
-    for (i = row, j = col; j >= 0 && i < N; i++, j--)
-    {
-        if (board[i][j])
-        {
-            return false;
-        }
-    }
-
-    return true;
+    return 1;
 }
 
-// A recursive utility function to solve N Queen problem
-bool solveNQUtil(int **board, int N, int col)
+void nqueens(int n)
 {
-    // If all queens are placed, then return true
-    if (col >= N)
-    {
-        return true;
-    }
+    int x[20];
+    int count = 0, k = 1;
+    x[k] = 0;
 
-    // Consider this column and try placing this queen in all rows one by one
-    for (int i = 0; i < N; i++)
+    while (k != 0)
     {
-        if (isSafe(board, N, i, col))
+        x[k] += 1;
+        while ((x[k] <= n) && !place(x, k))
+            x[k] += 1;
+
+        if (x[k] <= n)
         {
-            // Place this queen in board[i][col]
-            board[i][col] = 1;
-
-            // Recur to place rest of the queens
-            if (solveNQUtil(board, N, col + 1))
+            if (k == n)
             {
-                return true;
+                count++;
+                printf("SOLUTION %d:\n", count);
+                display(x, n);
             }
-
-            // If placing queen in board[i][col] doesn't lead to a solution,
-            // then remove queen from board[i][col]
-            board[i][col] = 0; // BACKTRACK
+            else
+            {
+                k++;
+                x[k] = 0;
+            }
         }
-    }
-
-    // If the queen cannot be placed in any row in this column col, then return false
-    return false;
-}
-
-bool solveNQ(int N)
-{
-    int **board = (int **)malloc(N * sizeof(int *));
-    for (int i = 0; i < N; i++)
-    {
-        board[i] = (int *)malloc(N * sizeof(int));
-        for (int j = 0; j < N; j++)
+        else
         {
-            board[i][j] = 0;
+            k--;
         }
     }
-
-    if (!solveNQUtil(board, N, 0))
-    {
-        printf("Solution does not exist\n");
-        for (int i = 0; i < N; i++)
-        {
-            free(board[i]);
-        }
-        free(board);
-        return false;
-    }
-
-    printSolution(board, N);
-
-    for (int i = 0; i < N; i++)
-    {
-        free(board[i]);
-    }
-    free(board);
-    return true;
 }
 
 int main()
 {
-    int N;
-    printf("Enter the number of queens: ");
-    scanf("%d", &N);
-    solveNQ(N);
+    int n;
+    printf("ENTER THE NUMBER OF QUEENS: ");
+    scanf("%d", &n);
+
+    nqueens(n);
+
     return 0;
 }
